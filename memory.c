@@ -3,8 +3,8 @@
 void initialize(void){
 	pc = 0x00000000;
 	ri = 0x00000000;
-	sp = 0x00003ffc;
-	gp = 0x00001800;
+	breg[2] = 0x00003ffc; //sp
+	breg[3] = 0x00001800; //gp
 	encerra = 0;
 }
 
@@ -167,9 +167,7 @@ void execute(void){
 				break;
 
 				case SLTIU3:
-					imm12_i = imm12_i << 20;
-					imm12_i = imm12_i >> 20;
-					breg[rd] = breg[rs1] < imm12_i;
+					breg[rd] = (uint32_t) breg[rs1] < (uint32_t) imm12_i;
 				break;
 
 				case XORI3:
@@ -270,8 +268,12 @@ void execute(void){
 
 				char* str;
 				case 4:
-					str = (char*) &mem[breg[10]/4];
-					printf("%s",str);
+					str = (char*)mem + breg[10];
+					int i = 0;
+					while(*(str + i) != '\0'){
+						printf("%c",*(str + i));
+						i++;
+					}
 					
 				break;
 
@@ -294,15 +296,36 @@ void step(void){
 void run(void){
 	while(encerra == 0){
 		step();
-		getchar();
 	}
 }
 
-void dump_mem(int pos1, int pos2){
-	for(int i = pos1; i < pos2; i++){
-		printf("mem[%03d] = %08x\n",i,mem[i]);
+void dump_mem(int pos1, int pos2, char format){
+	if(format == 'h'){
+		for(int i = pos1; i < pos2; i++){
+			printf("mem[%04d] = %08x\n",i,mem[i]);
+		}
+	}
+
+	else if(format == 'd'){
+		for(int i = pos1; i < pos2; i++){
+			printf("mem[%04d] = %08d\n",i,mem[i]);
+		}
 	}
 }
+
+void dump_reg(char format){
+	if(format == 'h'){
+		for(int i = 0; i < 32;i++){
+			printf("reg %d : %08x\n", i, breg[i]);
+		}
+	}
+	else if(format == 'd'){
+		for(int i = 0; i < 32;i++){
+			printf("reg %d : %x\n", i, breg[i]);
+		}
+	}
+}
+
 int32_t lw(uint32_t address, int32_t kte){
 	int32_t new_address = (int32_t)((address+kte)/4);	
 	return mem[new_address];							//Retorna o conteúdo do endereço carregado

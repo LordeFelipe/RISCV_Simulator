@@ -3,7 +3,7 @@
 
 #define MEM_SIZE 4096
 int32_t mem[MEM_SIZE]; 
-uint32_t pc, ri, sp, gp;
+uint32_t pc, ri;
 int32_t opcode, rs1, rs2, rd, shamt, funct3, funct7, imm12_i, imm12_s, imm13, imm20_u, imm21;
 int32_t breg[32];
 int encerra;
@@ -51,7 +51,9 @@ void step(void);
 
 void run(void);
 
-void dump_mem(int pos1, int pos2);
+void dump_mem(int pos1, int pos2, char format);
+
+void dump_reg(char format);
 
 int32_t lw(uint32_t address, int32_t kte);
 
